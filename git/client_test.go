@@ -749,22 +749,23 @@ func TestClientFetch(t *testing.T) {
 	}{
 		{
 			name: "fetch",
-			stub: stubCommandContext(t, `git fetch origin trunk`, 0, "", ""),
+			stub: stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential fetch origin trunk`, 0, "", ""),
 		},
 		{
 			name: "accepts command modifiers",
 			mods: []CommandModifier{WithRepoDir("/path/to/repo")},
-			stub: stubCommandContext(t, `git fetch origin trunk`, 0, "", ""),
+			stub: stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential fetch origin trunk`, 0, "", ""),
 		},
 		{
 			name:         "git error",
-			stub:         stubCommandContext(t, `git fetch origin trunk`, 1, "", "git error message"),
+			stub:         stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential fetch origin trunk`, 1, "", "git error message"),
 			wantErrorMsg: "failed to run git: git error message",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			client := Client{
+				GhPath:         "path/to/gh",
 				GitPath:        "path/to/git",
 				commandContext: tt.stub,
 			}
@@ -787,22 +788,23 @@ func TestClientPull(t *testing.T) {
 	}{
 		{
 			name: "pull",
-			stub: stubCommandContext(t, `git pull --ff-only origin trunk`, 0, "", ""),
+			stub: stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential pull --ff-only origin trunk`, 0, "", ""),
 		},
 		{
 			name: "accepts command modifiers",
 			mods: []CommandModifier{WithRepoDir("/path/to/repo")},
-			stub: stubCommandContext(t, `git pull --ff-only origin trunk`, 0, "", ""),
+			stub: stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential pull --ff-only origin trunk`, 0, "", ""),
 		},
 		{
 			name:         "git error",
-			stub:         stubCommandContext(t, `git pull --ff-only origin trunk`, 1, "", "git error message"),
+			stub:         stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential pull --ff-only origin trunk`, 1, "", "git error message"),
 			wantErrorMsg: "failed to run git: git error message",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			client := Client{
+				GhPath:         "path/to/gh",
 				GitPath:        "path/to/git",
 				commandContext: tt.stub,
 			}
@@ -825,22 +827,23 @@ func TestClientPush(t *testing.T) {
 	}{
 		{
 			name: "push",
-			stub: stubCommandContext(t, `git push --set-upstream origin trunk`, 0, "", ""),
+			stub: stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential push --set-upstream origin trunk`, 0, "", ""),
 		},
 		{
 			name: "accepts command modifiers",
 			mods: []CommandModifier{WithRepoDir("/path/to/repo")},
-			stub: stubCommandContext(t, `git push --set-upstream origin trunk`, 0, "", ""),
+			stub: stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential push --set-upstream origin trunk`, 0, "", ""),
 		},
 		{
 			name:         "git error",
-			stub:         stubCommandContext(t, `git push --set-upstream origin trunk`, 1, "", "git error message"),
+			stub:         stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential push --set-upstream origin trunk`, 1, "", "git error message"),
 			wantErrorMsg: "failed to run git: git error message",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			client := Client{
+				GhPath:         "path/to/gh",
 				GitPath:        "path/to/git",
 				commandContext: tt.stub,
 			}
@@ -864,24 +867,25 @@ func TestClientClone(t *testing.T) {
 	}{
 		{
 			name:       "clone",
-			stub:       stubCommandContext(t, `git clone github.com/cli/cli`, 0, "", ""),
+			stub:       stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential clone github.com/cli/cli`, 0, "", ""),
 			wantTarget: "cli",
 		},
 		{
 			name:       "accepts command modifiers",
 			mods:       []CommandModifier{WithRepoDir("/path/to/repo")},
-			stub:       stubCommandContext(t, `git clone github.com/cli/cli`, 0, "", ""),
+			stub:       stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential clone github.com/cli/cli`, 0, "", ""),
 			wantTarget: "cli",
 		},
 		{
 			name:         "git error",
-			stub:         stubCommandContext(t, `git clone github.com/cli/cli`, 1, "", "git error message"),
+			stub:         stubCommandContext(t, `git -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential clone github.com/cli/cli`, 1, "", "git error message"),
 			wantErrorMsg: "failed to run git: git error message",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			client := Client{
+				GhPath:         "path/to/gh",
 				GitPath:        "path/to/git",
 				commandContext: tt.stub,
 			}
@@ -963,7 +967,7 @@ func TestClientAddRemote(t *testing.T) {
 			url:      "URL",
 			dir:      "DIRECTORY",
 			branches: []string{},
-			want:     `git -C DIRECTORY remote add -f test URL`,
+			want:     `git -C DIRECTORY -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential remote add -f test URL`,
 		},
 		{
 			title:    "fetch specific branches only",
@@ -971,12 +975,13 @@ func TestClientAddRemote(t *testing.T) {
 			url:      "URL",
 			dir:      "DIRECTORY",
 			branches: []string{"trunk", "dev"},
-			want:     `git -C DIRECTORY remote add -t trunk -t dev -f test URL`,
+			want:     `git -C DIRECTORY -c credential.helper= -c credential.helper=!"path/to/gh" auth git-credential remote add -t trunk -t dev -f test URL`,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.title, func(t *testing.T) {
 			client := Client{
+				GhPath:         "path/to/gh",
 				GitPath:        "path/to/git",
 				RepoDir:        tt.dir,
 				commandContext: stubCommandContext(t, tt.want, 0, "", ""),
